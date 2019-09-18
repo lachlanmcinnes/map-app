@@ -36,9 +36,6 @@
   opacity: 0.7;
   -webkit-transition: .2s;
   transition: opacity .2s;
-  range: false;
-    step: 1;
-    refresh: true;
 }
 
 .slider:hover {

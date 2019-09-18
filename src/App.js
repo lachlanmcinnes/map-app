@@ -1,21 +1,20 @@
 import React from 'react';
 import Map from 'pigeon-maps';
 import Marker from 'pigeon-marker'
-//import AlgoliaPlaces from 'algolia-places-react'
 import './App.css';
 
 const fetch=require("node-fetch");
-
-var places = require('places.js');
+const places=require('places.js');
 
 class App extends React.Component{
 	
 	state = {
 		status : "ALL",
-		classification : "ALL",
+		classification: "ALL",
 		events: [],
 		lat: "0",
-		lng: "0"
+		lng: "0",
+		distance: "500"
 	}
 	
 	statusChanged = (e) => {
@@ -36,7 +35,8 @@ class App extends React.Component{
 			url+=`status=${this.state.status}&`
 		}
 		if(this.state.lat!=='0'){
-			url+=`$where=within_circle(the_geom,${this.state.lat},${this.state.lng},1000)`
+			url+=`$where=within_circle(the_geom,${this.state.lat},${this.state.lng},${this.state.distance})`;
+			console.log(url);
 		}
 		
 		fetch(url)
@@ -65,12 +65,11 @@ class App extends React.Component{
 		});
 	}
 	
-	sliderChange() {
-		var slider = document.getElementById("myRange");
-		slider.oninput = function() {
-			console.log(JSON.stringify(this.value));
-			slider.value = this.value
-		}
+	sliderChange(e){
+		let obj = {};
+		obj[e.target.name] = e.target.value;
+		this.setState(obj, this.fetchInfo);
+		console.log(this.state.distance);
 	}
 	
 	handleMarkerClick=({ event, payload, anchor }) => {
@@ -85,7 +84,7 @@ class App extends React.Component{
 			<div className="App">
 				<input type="search" id="address" className="form-control" placeholder="Where are we going?" />
 				<div className="slidecontainer">
-					<input type="range" min="1" max="2000" value="1000" className="slider" id="myRange" onChange={this.sliderChange}/>
+					<input type="range" min="1" max="1000" name='distance' value={this.state.distance} className="slider" id="myRange" onChange={(e) => {this.sliderChange(e)}}/>
 				</div>
 				
 				<header className="App-header">
