@@ -8,9 +8,6 @@ const fetch=require("node-fetch");
 
 var places = require('places.js');
 
-
-
-
 class App extends React.Component{
 	
 	state = {
@@ -64,9 +61,16 @@ class App extends React.Component{
 		
 		placesAutoComplete.on('change', e => {
 			this.setState({lat: e.suggestion.latlng.lat ,lng: e.suggestion.latlng.lng}, this.fetchInfo);
-			//this.setState({lng: e.suggestion.latlng.lng}), this.fetchInfo;
 			console.log(JSON.stringify(e.suggestion.latlng.lat))
-		})
+		});
+	}
+	
+	sliderChange() {
+		var slider = document.getElementById("myRange");
+		slider.oninput = function() {
+			console.log(JSON.stringify(this.value));
+			slider.value = this.value
+		}
 	}
 	
 	handleMarkerClick=({ event, payload, anchor }) => {
@@ -79,11 +83,13 @@ class App extends React.Component{
 		const classification = ['ALL', 'Public Event', 'Structures', 'Event', ]
 		return (
 			<div className="App">
-				<input type="search" id="address" class="form-control" placeholder="Where are we going?" />
-				
+				<input type="search" id="address" className="form-control" placeholder="Where are we going?" />
+				<div className="slidecontainer">
+					<input type="range" min="1" max="2000" value="1000" className="slider" id="myRange" onChange={this.sliderChange}/>
+				</div>
 				
 				<header className="App-header">
-					<Map center={[-37.8470585,145.1145445]} zoom={12} width={600} height={400} metaWheelZoom={'TRUE'}>
+					<Map center={[-37.8470585,145.1145445]} zoom={12} width={600} height={400} >
 						<Marker anchor={[-37.8470585,145.1145445]} payload={1}/>
 						{this.state.events.map(i=> (<Marker anchor={[i.the_geom.coordinates[0][0][0][1],i.the_geom.coordinates[0][0][0][0]]} payload={i} onClick={this.handleMarkerClick}/>))}
 					</Map>
