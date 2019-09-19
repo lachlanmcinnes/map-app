@@ -14,7 +14,13 @@ class App extends React.Component{
 		events: [],
 		lat: "0",
 		lng: "0",
-		distance: "500"
+		distance: "500",
+		background: 'green'
+	}
+	
+	cChange() {
+		var background =  "";
+		return {background: background};
 	}
 	
 	statusChanged = (e) => {
@@ -67,9 +73,8 @@ class App extends React.Component{
 	
 	sliderChange(e){
 		let obj = {};
-		obj[e.target.name] = e.target.value;
-		this.setState(obj, this.fetchInfo);
-		console.log(this.state.distance);
+		obj[e.target.payload] = e.target.value;
+		console.log(JSON.stringify(obj));
 	}
 	
 	handleMarkerClick=({ event, payload, anchor }) => {
@@ -77,9 +82,40 @@ class App extends React.Component{
 		this.setState({selectedIcon: payload})
 	}
 	
+	handleMarkerColor=({ event, payload }) => {
+		var t = this.cChange()
+		
+		if (payload.status === 'WARNING'){
+			t.background='red';
+			return t;
+		}else{
+			t.background='green';
+			return t;
+		}
+	}
+	
 	render() {
 		const status = ['ALL', 'PROVISIONAL', 'CONFIRMED', 'WARNING', ]
 		const classification = ['ALL', 'Public Event', 'Structures', 'Event', ]
+		
+		var RedMarker = ({ left, top, style, children, status }) => (
+		  <div style={{
+			position: 'absolute',
+			left: left,
+			top: top,
+			width: "20px",
+			height: "20px",
+			borderRadius: "50% 50% 50% 0",
+			borderColor: "black",
+			borderWidth: "thin",
+			borderStyle: "solid",
+			background: status==='WARNING' ? 'red' : 'green',
+			transform: "rotate(-45deg)",
+			margin: "-20px 0 0 -20px",
+			...(style || {})
+		  }}>{children}</div>
+		)
+		
 		return (
 			<div className="App">
 				<input type="search" id="address" className="form-control" placeholder="Where are we going?" />
@@ -89,11 +125,11 @@ class App extends React.Component{
 				
 				<header className="App-header">
 					<Map center={[-37.8470585,145.1145445]} zoom={12} width={600} height={400} >
-						<Marker anchor={[-37.8470585,145.1145445]} payload={1}/>
-						{this.state.events.map(i=> (<Marker anchor={[i.the_geom.coordinates[0][0][0][1],i.the_geom.coordinates[0][0][0][0]]} payload={i} onClick={this.handleMarkerClick}/>))}
+						<Marker anchor={[-37.8470585,145.1145445]} payload={1} />
+						{this.state.events.map(i=> (<RedMarker anchor={[i.the_geom.coordinates[0][0][0][1],i.the_geom.coordinates[0][0][0][0]]} payload={i} status={i.status} onClick={this.handleMarkerClick}/>))}
 					</Map>
 					
-					{this.setState.selectedIcon && JSON.stringify(this.state.selectedIcon)}
+					
 					
 					<label>Status</label>
 					<select onChange={this.statusChanged} value={this.state.status}>
