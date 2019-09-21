@@ -9,6 +9,7 @@
     "pigeon-maps": "^0.14.0",
     "pigeon-marker": "^0.3.4",
     "places.js": "^1.16.4",
+    "prop-types": "^15.7.2",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-instantsearch-dom": "^5.7.0",
