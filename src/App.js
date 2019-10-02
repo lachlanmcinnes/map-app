@@ -2,10 +2,13 @@ import React from 'react';
 import Map from 'pigeon-maps';
 import Marker from 'pigeon-marker'
 import RedMarker from './RedMarker.js'
+import WeatherInfoComponent from'./WeatherInfoComponent';
 import './App.css';
 
 const fetch=require("node-fetch");
 const places=require('places.js');
+
+const WEATHER_API_KEY = 'b3a1fe31fb871a134c029733070442ae';
 
 class App extends React.Component{
 	
@@ -18,7 +21,12 @@ class App extends React.Component{
 		distance: "500",
 		background: 'green',
 		hover: false,
-		markerName: ""
+		markerName: "",
+		temperature: undefined,
+		humidity: undefined,
+		pressure: undefined,
+		wind: undefined,
+		cloudiness: undefined
 	}
 	
 	statusChanged = (e) => {
@@ -41,6 +49,7 @@ class App extends React.Component{
 		}
 		if(this.state.lat!=='0'){
 			url+=`$where=within_circle(the_geom,${this.state.lat},${this.state.lng},${this.state.distance})`;
+			this.fetchWeather();
 		}
 		
 		fetch(url)
@@ -53,6 +62,21 @@ class App extends React.Component{
 				
 			});
 			
+	}
+	
+	fetchWeather = () => {
+		fetch(`http://api.openweathermap.org/data/2.5/weather?lat=${this.state.lat}&lon=${this.state.lng}&units=metric&appid=${WEATHER_API_KEY}`)
+			.then(response => response.json())
+			.then(data => {
+				this.setState({
+					temperature: data.main.temp,
+					humidity:data.main.humidity,
+					pressure:data.main.pressure,
+					wind:data.wind,
+					cloudiness:data.weather[0].description,
+				})
+			}
+		)
 	}
 	
 	componentDidMount(){
@@ -108,6 +132,13 @@ class App extends React.Component{
 				<div className="slidecontainer">
 					<input type="range" min="1" max="1000" name='distance' value={this.state.distance} className="slider" id="myRange" onChange={(e) => {this.sliderChange(e)}}/>
 				</div>
+				
+				<WeatherInfoComponent 
+						temperature={this.state.temperature}
+						humidity={this.state.humidity}
+						pressure={this.state.pressure}
+						wind={this.state.wind}
+						cloudiness={this.state.cloudiness}/>
 				
 				<header className="App-header">
 					<Map center={[-37.8470585,145.1145445]} zoom={12} width={600} height={400} >
